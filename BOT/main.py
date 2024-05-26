@@ -1,11 +1,21 @@
 import asyncio
 import random
+import os
+
+import requests
 
 import discord
 import yt_dlp as youtube_dl  # Cambiar a yt_dlp
 from discord.ext import commands
 
 youtube_dl.utils.bug_reports_message = lambda: ''
+
+def get_foxy_image_url():    
+    url = 'https://randomfox.ca/floof/'
+    res = requests.get(url)
+    data = res.json()
+    return data['image']
+
 
 ytdl_format_options = {
     'format': 'bestaudio/best',
@@ -118,10 +128,21 @@ class Music(commands.Cog):
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.memes = {
+            '1.jpg': 5,  
+            '2.jpeg': 2,
+            '9.jpg': 1, 
+            '5.jpg':7,
+            '4.jpg':3,
+            '3.jpg':4,
+            '6.jpg':5,
+            '7.jpeg':6,
+            '8.jpg':8
+        }
+
 
     @commands.command()
     async def gen_password(self, ctx):
-        """Generates a random password"""
         contrasena = ""
         caracteres = "+-/*!&$#?=@abcdefghijklnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
         for _ in range(8):
@@ -130,13 +151,11 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def gen_emodji(self, ctx):
-        """Sends a random emoji"""
         emodji = ["\U0001f600", "\U0001f642", "\U0001F606", "\U0001F923", "\U0001F609", "\U0001F60E", "\U0001F605"]
         await ctx.send(random.choice(emodji))
 
     @commands.command()
     async def flip_coin(self, ctx):
-        """Flips a coin"""
         flip = random.randint(0, 1)
         if flip == 0:
             await ctx.send("CARA")
@@ -145,13 +164,27 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def hello(self, ctx):
-        """Says hello"""
         await ctx.send(f'Hola, soy un bot {self.bot.user}!')
 
     @commands.command()
     async def heh(self, ctx, count_heh=5):
-        """Repeats 'he' a specified number of times"""
         await ctx.send("he" * count_heh)
+
+    @commands.command()
+    async def meme(self, ctx):
+        meme_files = list(self.memes.keys())
+        meme_weights = list(self.memes.values())
+        selected_meme = random.choices(meme_files, weights=meme_weights, k=1)[0]
+        meme_path = os.path.join('C:/Users/Asus/Documents/kodlan/proyect_Python/BOT/img', selected_meme)
+
+        with open(meme_path, 'rb') as f:
+            picture = discord.File(f)
+        await ctx.send(file=picture)
+    
+    @commands.command()
+    async def foxy(self, ctx):
+        picture = get_foxy_image_url()
+        await ctx.send(picture)
 
 intents = discord.Intents.default()
 intents.message_content = True
